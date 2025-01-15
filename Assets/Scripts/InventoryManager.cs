@@ -1,14 +1,12 @@
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager instance;
 
 
-    private List<InventorySlot> slots = new List<InventorySlot>();
+    [SerializeField] private List<InventorySlot> slots = new List<InventorySlot>();
 
     public List<InventorySlot> Slots=> slots;
 
@@ -25,9 +23,13 @@ public class InventoryManager : MonoBehaviour
             Destroy(gameObject);
         }
 
+        AddItem(testitem,2);
         AddItem(testitem);
         AddItem(testitem);
-        
+        AddItem(testitem);
+        AddItem(testitem);
+        AddItem(testitem);
+
     }
 
 
@@ -41,8 +43,7 @@ public class InventoryManager : MonoBehaviour
     // Метод для добавления предмета в слот
     public void AddItem(Item newItem, int quantity = 1)
     {
-        print($"added {newItem} quant {quantity}");
-        // Проверяем, есть ли уже слот с таким предметом
+        // Проверяем, есть ли уже слот с таким предметом и он может быть сложен (stackable)
         InventorySlot existingSlot = slots.Find(slot => slot.Item.ItemId == newItem.ItemId && slot.Item.IsStackable);
 
         if (existingSlot != null)
@@ -52,21 +53,25 @@ public class InventoryManager : MonoBehaviour
         }
         else
         {
+            // Если слота с таким предметом нет, создаем новый
             InventorySlot newSlot = new InventorySlot(newItem, quantity);
             slots.Add(newSlot);
         }
-
-        // Обновляем UI после добавления предмета
-        //UpdateUI();
     }
 
     // Метод для использования предмета из слота
-    void UseItem(InventorySlot slot)
+    public void UseSlot(InventorySlot slot)
     {
         if (slot.Item != null)
         {
             slot.UseItem(); // Вызываем метод UseItem() у слота, который использует предмет
         }
-        //UpdateUI();
+
+        // Если количество предметов в слоте равно 0, удаляем слот из списка
+        if (slot.Quantity == 0)
+        {
+            slots.Remove(slot);
+        }
     }
+
 }

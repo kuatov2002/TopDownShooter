@@ -1,36 +1,17 @@
-using TMPro;
 using UnityEngine;
 
-public class InventorySlot : MonoBehaviour
+public class InventorySlot:MonoBehaviour
 {
-    private Item item;                      // Предмет в слоте
-    public Item Item=> item;
+    [SerializeField] private Item item;
+    public Item Item => item;
+    [SerializeField] private int quantity = 0;
+    public int Quantity => quantity;
 
-    public int quantity=0;                   // Количество предметов в слоте
-    public TextMeshProUGUI quantityText;   // Текст для отображения количества предметов
-    //public Image itemIcon;                 // Иконка предмета
-
+    // Since this is no longer a MonoBehaviour, we can keep the constructor
     public InventorySlot(Item item, int quantity = 1)
     {
         this.item = item;
         this.quantity = quantity;
-    }
-    public void UpdateSlot()
-    {
-        if (item != null)
-        {
-            // Обновляем иконку и количество
-            //itemIcon.sprite = item.Icon;
-            //itemIcon.enabled = true;
-            quantityText.text = quantity > 1 ? quantity.ToString() : "";
-        }
-        else
-        {
-            // Если слот пустой, скрываем иконку и текст
-            //itemIcon.sprite = null;
-            //itemIcon.enabled = false;
-            quantityText.text = "";
-        }
     }
 
     public void UseItem()
@@ -39,29 +20,33 @@ public class InventorySlot : MonoBehaviour
         {
             item.Use();
             quantity--;
-
             if (quantity <= 0)
             {
                 DeleteItem();
-            }
-            else
-            {
-                UpdateSlot();
             }
         }
     }
 
     public void DeleteItem()
     {
+        int slotIndex = InventoryManager.instance.Slots.IndexOf(this);
+        if (slotIndex != -1)
+        {
+            InventoryManager.instance.Slots.RemoveAt(slotIndex);
+        }
         item = null;
         quantity = 0;
-        UpdateSlot();
+        InventoryWindow.instance.UpdateUI();
     }
 
-    public void AddItem(Item newItem, int amount=1)
+    public void AddItem(Item newItem, int amount = 1)
     {
         item = newItem;
         quantity += amount;
-        UpdateSlot();
+    }
+
+    public override string ToString()
+    {
+        return item != null ? $"{item.DisplayName} x{quantity}" : "Empty Slot";
     }
 }

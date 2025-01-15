@@ -1,33 +1,77 @@
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class InventoryWindow : MonoBehaviour
 {
+    public static InventoryWindow instance;
+
     [Header("UI Elements")]
-    [SerializeField]private GameObject inventoryPanel; // Панель, куда будут добавляться слоты
-    public GameObject slotPrefab;     // Префаб слота (кнопка)
+    [SerializeField] private GameObject inventoryPanel;
+    [SerializeField] private GameObject slotPrefab;
+
+    private List<GameObject> uiSlots = new List<GameObject>();
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     public void ToggleActive()
     {
         inventoryPanel.SetActive(!inventoryPanel.activeSelf);
+        UpdateUI();
     }
 
-    void Start()
+    public void UpdateUI()
     {
-        DrawSlots();
-        print("drawed");
-    }
-    private void DrawSlots()
-    {
-        // Теперь создаем новые слоты на основе информации из InventoryManager
-        foreach (InventorySlot slot in InventoryManager.instance.Slots)
+        // Очищаем старые UI слоты
+        foreach (GameObject slot in uiSlots)
         {
-            // Создаем новый слот из префаба и делаем его дочерним объектом для панели
+            Destroy(slot);
+        }
+        uiSlots.Clear();
+
+        // Создаем новые UI слоты
+        for (int i = 0; i < InventoryManager.instance.Slots.Count; i++)
+        {
+            InventorySlot slot = InventoryManager.instance.Slots[i];
             GameObject newSlot = Instantiate(slotPrefab, inventoryPanel.transform);
-            newSlot.GetComponentInChildren<TextMeshProUGUI>().text = slot.Item.DisplayName;
+
+            // Устанавливаем текст и обрабатываем клик
+            TextMeshProUGUI text = newSlot.GetComponentInChildren<TextMeshProUGUI>();
+            if (text != null)
+            {
+                text.text = $"{slot.Item.DisplayName} x{slot.Quantity}";
+            }
+
+            // Добавляем обработчик нажатия на кнопку
+            Button button = newSlot.GetComponent<Button>();
+            if (button != null)
+            {
+                int index = i; // Копируем индекс для замыкания
+                button.onClick.AddListener(() => OnSlotClicked(index));
+            }
+
+            uiSlots.Add(newSlot);
+        }
+    }
+
+    private void OnSlotClicked(int slotIndex)
+    {
+        InventorySlot slot = InventoryManager.instance.Slots[slotIndex];
+        if (slot.Item != null)
+        {
+            InventoryManager.instance.UseSlot(slot);
+            UpdateUI();      // Обновляем интерфейс
         }
     }
 }
