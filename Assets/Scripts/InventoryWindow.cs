@@ -33,14 +33,12 @@ public class InventoryWindow : MonoBehaviour
 
     public void UpdateUI()
     {
-        // ������� ������ UI �����
         foreach (GameObject slot in uiSlots)
         {
             Destroy(slot);
         }
         uiSlots.Clear();
 
-        // ������� ����� UI �����
         foreach (var slot in InventoryManager.instance.Slots)
         {
             GameObject newSlot = Instantiate(slotPrefab, inventoryPanel.transform);
@@ -64,8 +62,7 @@ public class InventoryWindow : MonoBehaviour
 
     private void OnSlotClicked(InventorySlot slot)
     {
-        // ����� ��������� ����� �� ����
         InventoryManager.instance.UseSlot(slot);
-        UpdateUI();  // ��������� ���������
+        UpdateUI();
     }
 }

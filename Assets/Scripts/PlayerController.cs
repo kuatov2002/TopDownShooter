@@ -3,23 +3,27 @@ using UnityEngine;
 public class PlayerController : EntityBase
 {
     public float moveSpeed = 5f;
-    public float smoothTime = 0.1f; // ����� ����������� ��������
+    public float smoothTime = 0.1f; // Время сглаживания движения
     public Rigidbody2D rb;
 
-    [Header("������")]
+    [Header("Взаимодействие")]
+    public LayerMask lootLayer; // Установите это в инспекторе на слой "Loot"
+    public float interactionRadius; // Выносим радиус в настраиваемое поле
+
+    [Header("Оружие")]
     public Transform HandWithWeapon;
     public Transform shotPoint;
     public GameObject projectile;
 
-    [Header("��������")]
+    [Header("Стрельба")]
     public float shotCooldown;
     private float nextShotTime;
 
-    [Header("��������")]
+    [Header("Джойстик")]
     public Joystick joystick;
 
     private Vector2 movement;
-    private Vector2 currentVelocity; // ��� ����������� ��������
+    private Vector2 currentVelocity; // Для сглаживания движения
 
 
     protected override void Start()
@@ -29,34 +33,59 @@ public class PlayerController : EntityBase
     }
     private void OnDestroy()
     {
-        // ������������ �� ������� ������ ��� ����������� �������
+        // Отписываемся от события смерти при уничтожении объекта
         OnDeath -= HandleDeath;
     }
     private void HandleDeath()
     {
         Destroy(gameObject);
     }
+
     void Update()
     {
     }
+
     void FixedUpdate()
     {
         HandleMovement();
     }
 
+    public void Interact()
+    {
+        Debug.Log("Попытка взаимодействия");
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(
+            transform.position,
+            interactionRadius,
+            lootLayer // Теперь проверяются только объекты на слое Loot
+        );
+        Debug.Log($"Найдено коллайдеров: {hitColliders.Length}");
+
+        foreach (var hitCollider in hitColliders)
+        {
+            Debug.Log($"Проверяем объект: {hitCollider.gameObject.name}");
+            IInteractable interactable = hitCollider.GetComponent<IInteractable>();
+            if (interactable != null)
+            {
+                Debug.Log("Найден интерактивный объект");
+                interactable.Interact();
+                break;
+            }
+        }
+    }
+
     private void HandleMovement()
     {
-        // �������� ���� � ���������
+        // Получаем ввод с джойстика
         movement.x = joystick.Horizontal;
         movement.y = joystick.Vertical;
 
-        // ���� �������� ��������, ������������ ��� � ������� ��������
+        // Если персонаж движется, поворачиваем его в сторону движения
         if (movement != Vector2.zero)
         {
             float weaponAngle = Mathf.Atan2(movement.y, movement.x) * Mathf.Rad2Deg;
             HandWithWeapon.rotation = Quaternion.Euler(0f, 0f, weaponAngle);
         }
-        // ������� �������� ��������� ����� Rigidbody
+        // Плавное движение персонажа через Rigidbody
         Vector2 targetVelocity = movement * moveSpeed;
         rb.velocity = Vector2.SmoothDamp(rb.velocity, targetVelocity, ref currentVelocity, smoothTime);
     }
@@ -67,8 +96,15 @@ public class PlayerController : EntityBase
         {
             nextShotTime = Time.time + shotCooldown;
 
-            // ������� ���� � ����������� ������
+            // Создаем пулю в направлении оружия
             Instantiate(projectile, shotPoint.position, HandWithWeapon.rotation);
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        // Рисуем сферу взаимодействия желтым цветом
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, interactionRadius);
     }
 }
