@@ -33,14 +33,14 @@ public class InventoryWindow : MonoBehaviour
 
     public void UpdateUI()
     {
-        // Очищаем старые UI слоты
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ UI пїЅпїЅпїЅпїЅпїЅ
         foreach (GameObject slot in uiSlots)
         {
             Destroy(slot);
         }
         uiSlots.Clear();
 
-        // Создаем новые UI слоты
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ UI пїЅпїЅпїЅпїЅпїЅ
         foreach (var slot in InventoryManager.instance.Slots)
         {
             GameObject newSlot = Instantiate(slotPrefab, inventoryPanel.transform);
@@ -64,9 +64,8 @@ public class InventoryWindow : MonoBehaviour
 
     private void OnSlotClicked(InventorySlot slot)
     {
-        // Здесь обработка клика на слот
+        // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ
         InventoryManager.instance.UseSlot(slot);
-        UpdateUI();  // Обновляем интерфейс
+        UpdateUI();  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     }
-
 }
