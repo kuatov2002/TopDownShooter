@@ -55,7 +55,6 @@ public class PlayerController : EntityBase
         {
             float weaponAngle = Mathf.Atan2(movement.y, movement.x) * Mathf.Rad2Deg;
             HandWithWeapon.rotation = Quaternion.Euler(0f, 0f, weaponAngle);
-
         }
         // Плавное движение персонажа через Rigidbody
         Vector2 targetVelocity = movement * moveSpeed;

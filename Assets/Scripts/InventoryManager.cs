@@ -10,7 +10,6 @@ public class InventoryManager : MonoBehaviour
 
     public List<InventorySlot> Slots=> slots;
 
-    public Item testitem;
     void Awake()
     {
         // Singleton
@@ -22,20 +21,6 @@ public class InventoryManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-        AddItem(testitem,2);
-        AddItem(testitem);
-        AddItem(testitem);
-        AddItem(testitem);
-        AddItem(testitem);
-        AddItem(testitem);
-
-    }
-
-
-
-    void Start()
-    {
 
     }
 

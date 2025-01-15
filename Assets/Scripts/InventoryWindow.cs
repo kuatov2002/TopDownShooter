@@ -68,5 +68,4 @@ public class InventoryWindow : MonoBehaviour
         InventoryManager.instance.UseSlot(slot);
         UpdateUI();  // Обновляем интерфейс
     }
-
 }
