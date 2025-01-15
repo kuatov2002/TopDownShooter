@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : EntityBase
+public class Zombie : EntityBase
 {
     [SerializeField] private float detectionRange = 3f;
     [SerializeField] private float attackRange = 0.5f;
@@ -59,7 +59,7 @@ public class Enemy : EntityBase
     }
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.tag=="Projectile")
+        if (other.tag == "Projectile")
         {
             TakeDamage(other.GetComponent<Projectile>().damage);
         }

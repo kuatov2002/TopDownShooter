@@ -38,9 +38,10 @@ public class PlayerController : EntityBase
     }
     void Update()
     {
-        
-
-
+    }
+    void FixedUpdate()
+    {
+        HandleMovement();
     }
 
     private void HandleMovement()
@@ -59,10 +60,6 @@ public class PlayerController : EntityBase
         // Плавное движение персонажа через Rigidbody
         Vector2 targetVelocity = movement * moveSpeed;
         rb.velocity = Vector2.SmoothDamp(rb.velocity, targetVelocity, ref currentVelocity, smoothTime);
-    }
-    void FixedUpdate()
-    {
-        HandleMovement();
     }
 
     public void Shoot()
