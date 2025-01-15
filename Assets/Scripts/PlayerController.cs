@@ -3,23 +3,23 @@ using UnityEngine;
 public class PlayerController : EntityBase
 {
     public float moveSpeed = 5f;
-    public float smoothTime = 0.1f; // Время сглаживания движения
+    public float smoothTime = 0.1f; // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     public Rigidbody2D rb;
 
-    [Header("Оружие")]
+    [Header("пїЅпїЅпїЅпїЅпїЅпїЅ")]
     public Transform HandWithWeapon;
     public Transform shotPoint;
     public GameObject projectile;
 
-    [Header("Стрельба")]
+    [Header("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")]
     public float shotCooldown;
     private float nextShotTime;
 
-    [Header("Джойстик")]
+    [Header("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")]
     public Joystick joystick;
 
     private Vector2 movement;
-    private Vector2 currentVelocity; // Для сглаживания движения
+    private Vector2 currentVelocity; // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
 
     protected override void Start()
@@ -29,7 +29,7 @@ public class PlayerController : EntityBase
     }
     private void OnDestroy()
     {
-        // Отписываемся от события смерти при уничтожении объекта
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         OnDeath -= HandleDeath;
     }
     private void HandleDeath()
@@ -46,17 +46,17 @@ public class PlayerController : EntityBase
 
     private void HandleMovement()
     {
-        // Получаем ввод с джойстика
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         movement.x = joystick.Horizontal;
         movement.y = joystick.Vertical;
 
-        // Если персонаж движется, поворачиваем его в сторону движения
+        // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         if (movement != Vector2.zero)
         {
             float weaponAngle = Mathf.Atan2(movement.y, movement.x) * Mathf.Rad2Deg;
             HandWithWeapon.rotation = Quaternion.Euler(0f, 0f, weaponAngle);
         }
-        // Плавное движение персонажа через Rigidbody
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ Rigidbody
         Vector2 targetVelocity = movement * moveSpeed;
         rb.velocity = Vector2.SmoothDamp(rb.velocity, targetVelocity, ref currentVelocity, smoothTime);
     }
@@ -67,7 +67,7 @@ public class PlayerController : EntityBase
         {
             nextShotTime = Time.time + shotCooldown;
 
-            // Создаем пулю в направлении оружия
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
             Instantiate(projectile, shotPoint.position, HandWithWeapon.rotation);
         }
     }
