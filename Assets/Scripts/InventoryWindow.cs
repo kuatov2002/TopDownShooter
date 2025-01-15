@@ -41,37 +41,32 @@ public class InventoryWindow : MonoBehaviour
         uiSlots.Clear();
 
         // Создаем новые UI слоты
-        for (int i = 0; i < InventoryManager.instance.Slots.Count; i++)
+        foreach (var slot in InventoryManager.instance.Slots)
         {
-            InventorySlot slot = InventoryManager.instance.Slots[i];
             GameObject newSlot = Instantiate(slotPrefab, inventoryPanel.transform);
 
-            // Устанавливаем текст и обрабатываем клик
             TextMeshProUGUI text = newSlot.GetComponentInChildren<TextMeshProUGUI>();
             if (text != null)
             {
                 text.text = $"{slot.Item.DisplayName} x{slot.Quantity}";
             }
 
-            // Добавляем обработчик нажатия на кнопку
             Button button = newSlot.GetComponent<Button>();
             if (button != null)
             {
-                int index = i; // Копируем индекс для замыкания
-                button.onClick.AddListener(() => OnSlotClicked(index));
+                button.onClick.AddListener(() => OnSlotClicked(slot));
             }
 
             uiSlots.Add(newSlot);
         }
     }
 
-    private void OnSlotClicked(int slotIndex)
+
+    private void OnSlotClicked(InventorySlot slot)
     {
-        InventorySlot slot = InventoryManager.instance.Slots[slotIndex];
-        if (slot.Item != null)
-        {
-            InventoryManager.instance.UseSlot(slot);
-            UpdateUI();      // Обновляем интерфейс
-        }
+        // Здесь обработка клика на слот
+        InventoryManager.instance.UseSlot(slot);
+        UpdateUI();  // Обновляем интерфейс
     }
+
 }

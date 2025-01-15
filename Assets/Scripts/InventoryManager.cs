@@ -43,21 +43,22 @@ public class InventoryManager : MonoBehaviour
     // Метод для добавления предмета в слот
     public void AddItem(Item newItem, int quantity = 1)
     {
-        // Проверяем, есть ли уже слот с таким предметом и он может быть сложен (stackable)
+        // Ищем слот с таким же предметом, который можно сложить
         InventorySlot existingSlot = slots.Find(slot => slot.Item.ItemId == newItem.ItemId && slot.Item.IsStackable);
 
         if (existingSlot != null)
         {
-            // Если слот найден, добавляем количество
+            // Если нашли, увеличиваем количество
             existingSlot.AddItem(newItem, quantity);
         }
         else
         {
-            // Если слота с таким предметом нет, создаем новый
+            // Если не нашли, создаем новый слот
             InventorySlot newSlot = new InventorySlot(newItem, quantity);
             slots.Add(newSlot);
         }
     }
+
 
     // Метод для использования предмета из слота
     public void UseSlot(InventorySlot slot)

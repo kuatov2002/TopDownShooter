@@ -1,52 +1,42 @@
 using UnityEngine;
 
-public class InventorySlot:MonoBehaviour
+[System.Serializable]
+public class InventorySlot
 {
-    [SerializeField] private Item item;
-    public Item Item => item;
-    [SerializeField] private int quantity = 0;
-    public int Quantity => quantity;
+    [SerializeField]public Item Item { get; private set; }
+    public int Quantity { get; private set; }
 
-    // Since this is no longer a MonoBehaviour, we can keep the constructor
+    // Конструктор для создания нового слота
     public InventorySlot(Item item, int quantity = 1)
     {
-        this.item = item;
-        this.quantity = quantity;
+        Item = item;
+        Quantity = quantity;
     }
 
+    // Метод для использования предмета
     public void UseItem()
     {
-        if (item != null)
+        if (Item != null)
         {
-            item.Use();
-            quantity--;
-            if (quantity <= 0)
+            Item.Use();
+            Quantity--;
+            if (Quantity <= 0)
             {
                 DeleteItem();
             }
         }
     }
 
-    public void DeleteItem()
+    // Метод для удаления предмета, когда его количество стало 0
+    private void DeleteItem()
     {
-        int slotIndex = InventoryManager.instance.Slots.IndexOf(this);
-        if (slotIndex != -1)
-        {
-            InventoryManager.instance.Slots.RemoveAt(slotIndex);
-        }
-        item = null;
-        quantity = 0;
-        InventoryWindow.instance.UpdateUI();
+        // Логика для удаления предмета
     }
 
+    // Метод для добавления предметов в слот
     public void AddItem(Item newItem, int amount = 1)
     {
-        item = newItem;
-        quantity += amount;
-    }
-
-    public override string ToString()
-    {
-        return item != null ? $"{item.DisplayName} x{quantity}" : "Empty Slot";
+        Item = newItem;
+        Quantity += amount;
     }
 }
