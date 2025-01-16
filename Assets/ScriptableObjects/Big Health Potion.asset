@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4aea5fef44cad324ea174160aa533ad1, type: 3}
   m_Name: Big Health Potion
   m_EditorClassIdentifier: 
-  itemId: 0
-  displayName: 
-  icon: {fileID: 0}
-  maxStackSize: 0
-  isStackable: 0
-  duration: 0
-  effectRate: 0
-  healAmount: 0
+  itemId: 2
+  displayName: Big Health Potion
+  icon: {fileID: 21300000, guid: d6a44ab95b0def041a7929981a2c23a1, type: 3}
+  maxStackSize: 64
+  isStackable: 1
+  duration: 10
+  effectRate: 1
+  healAmount: 10

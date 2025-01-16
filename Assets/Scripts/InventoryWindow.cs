@@ -2,44 +2,42 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class InventoryWindow : MonoBehaviour
 {
-    public static InventoryWindow instance;
-
     [Header("UI Elements")]
     [SerializeField] private GameObject inventoryPanel;
     [SerializeField] private GameObject slotPrefab;
 
     private List<GameObject> uiSlots = new List<GameObject>();
 
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
+    private IInventoryManager _inventoryManager; // Reference to the manager through interface
 
+    [Inject]
+    public void Construct(IInventoryManager inventoryManager)
+    {
+        _inventoryManager = inventoryManager;
+    }
     public void ToggleActive()
     {
         inventoryPanel.SetActive(!inventoryPanel.activeSelf);
-        UpdateUI();
+        if (inventoryPanel.activeSelf)
+        {
+            UpdateUI();
+        }
     }
 
     public void UpdateUI()
     {
-        foreach (GameObject slot in uiSlots)
+        // Очищаем старые UI-слоты
+        foreach (Transform child in inventoryPanel.transform)
         {
-            Destroy(slot);
+            Destroy(child.gameObject);
         }
-        uiSlots.Clear();
 
-        foreach (var slot in InventoryManager.instance.Slots)
+        // Создаем UI-слоты на основе данных из InventoryManager
+        foreach (var slot in _inventoryManager.Slots)
         {
             GameObject newSlot = Instantiate(slotPrefab, inventoryPanel.transform);
 
@@ -54,15 +52,11 @@ public class InventoryWindow : MonoBehaviour
             {
                 button.onClick.AddListener(() => OnSlotClicked(slot));
             }
-
-            uiSlots.Add(newSlot);
         }
     }
 
-
     private void OnSlotClicked(InventorySlot slot)
     {
-        InventoryManager.instance.UseSlot(slot);
-        UpdateUI();
+        _inventoryManager.UseSlot(slot);
     }
 }

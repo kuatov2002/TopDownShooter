@@ -1,9 +1,10 @@
 using UnityEngine;
+using Zenject;
 
 public class PlayerController : EntityBase
 {
-    public float moveSpeed = 5f;
-    public float smoothTime = 0.1f; // Время сглаживания движения
+    [SerializeField] private float moveSpeed = 5f;
+    private float smoothTime = 0.1f; // Время сглаживания движения
     public Rigidbody2D rb;
 
     [Header("Взаимодействие")]
@@ -25,6 +26,13 @@ public class PlayerController : EntityBase
     private Vector2 movement;
     private Vector2 currentVelocity; // Для сглаживания движения
 
+    private IInventoryManager _inventoryManager;
+
+    [Inject]
+    public void Construct(IInventoryManager inventoryManager)
+    {
+        _inventoryManager = inventoryManager;
+    }
 
     protected override void Start()
     {
@@ -39,10 +47,6 @@ public class PlayerController : EntityBase
     private void HandleDeath()
     {
         Destroy(gameObject);
-    }
-
-    void Update()
-    {
     }
 
     void FixedUpdate()
