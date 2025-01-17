@@ -24,6 +24,10 @@ public class SlotInformationPanel : MonoBehaviour
     }
     public void SetSlot(InventorySlot slot)
     {
+        useButton.onClick.RemoveAllListeners();
+        deleteButton.onClick.RemoveAllListeners();
+
+
         icon.sprite = slot.Item.Icon;
         description.text= slot.Item.Description;
         name.text = slot.Item.DisplayName;

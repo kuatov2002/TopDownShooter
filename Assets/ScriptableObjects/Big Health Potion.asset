@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: 2
   displayName: Big Health Potion
-  icon: {fileID: 21300000, guid: d6a44ab95b0def041a7929981a2c23a1, type: 3}
+  description: "\u0416\u0435\u0441\u043A\u0430 \u0445\u0438\u043B\u0438\u0442"
+  icon: {fileID: 21300000, guid: 89d98eda0f6f17a4bac885d09616f558, type: 3}
   maxStackSize: 64
   isStackable: 1
   duration: 10
