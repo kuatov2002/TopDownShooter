@@ -3,63 +3,81 @@ using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
-public class InventoryManager : MonoBehaviour, IInventoryManager
+public class InventoryManager : IInventoryManager
 {
+    public event Action<List<InventorySlot>> OnInventoryChanged;
 
-    public event Action OnInventoryChanged;
+    private readonly List<InventorySlot> slots = new();
 
-    [SerializeField] private List<InventorySlot> slots = new List<InventorySlot>();
-    public List<InventorySlot> Slots => slots;
-
-    private InventoryWindow _inventoryWindow;
-
-    [Inject]
-    public void Construct(InventoryWindow inventoryWindow)
-    {
-        _inventoryWindow = inventoryWindow;
-    }
+    public List<InventorySlot> Slots => new List<InventorySlot>(slots); // Возвращаем копию списка для безопасности
 
     public void AddItem(Item newItem, int quantity = 1)
     {
-        InventorySlot existingSlot = slots.Find(slot => slot.Item.ItemId == newItem.ItemId && slot.Item.IsStackable);
+        var existingSlot = slots.Find(slot => slot.Item.ItemId == newItem.ItemId && slot.Item.IsStackable);
 
         if (existingSlot != null)
         {
-            existingSlot.AddItem(newItem, quantity);
+            existingSlot.AddItem(quantity);
         }
         else
         {
-            InventorySlot newSlot = new InventorySlot(newItem, quantity);
-            slots.Add(newSlot);
+            slots.Add(new InventorySlot(newItem, quantity));
         }
 
         NotifyInventoryChanged();
     }
-    private void NotifyInventoryChanged()
-    {
-        OnInventoryChanged?.Invoke();
-    }
 
     public void UseSlot(InventorySlot slot)
     {
-        if (slot.Item != null)
-        {
-            slot.UseItem();
-        }
-
-        if (slot.Quantity == 0)
+        if (slot.UseItem() == 0)
         {
             slots.Remove(slot);
         }
 
         NotifyInventoryChanged();
     }
+
     public void RemoveSlot(InventorySlot slot)
     {
         if (slots.Contains(slot))
         {
-            slots.Remove(slot); // Удаляем слот из списка
-            NotifyInventoryChanged(); // Обновляем UI
+            slots.Remove(slot);
+            NotifyInventoryChanged();
         }
     }
+
+    public bool CanAddItem(Item newItem)
+    {
+        var existingSlot = slots.Find(slot => slot.Item.ItemId == newItem.ItemId && slot.Item.IsStackable);
+
+        if (existingSlot != null)
+        {
+            return true; // Есть место в существующем слоте
+        }
+
+        return slots.Count < MaxSlotCount; // MaxSlotCount — заданное ограничение слотов
+    }
+
+    public int GetItemCount(Item item)
+    {
+        int count = 0;
+
+        foreach (var slot in slots)
+        {
+            if (slot.Item.ItemId == item.ItemId)
+            {
+                count += slot.Quantity;
+            }
+        }
+
+        return count;
+    }
+
+    private void NotifyInventoryChanged()
+    {
+        OnInventoryChanged?.Invoke(new List<InventorySlot>(slots)); // Передаём копию списка для безопасности
+    }
+
+    // Ограничение количества слотов (можно настроить)
+    private const int MaxSlotCount = 20;
 }

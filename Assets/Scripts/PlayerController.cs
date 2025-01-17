@@ -1,66 +1,48 @@
 using UnityEngine;
 using Zenject;
-using static UnityEditor.Progress;
 
 public class PlayerController : EntityBase
 {
     [SerializeField] private float moveSpeed = 5f;
-    private float smoothTime = 0.1f; // Время сглаживания движения
-    public Rigidbody2D rb;
-
-    [Header("Взаимодействие")]
-    public LayerMask lootLayer; // Установите это в инспекторе на слой "Loot"
-    public float lootRadius; // Выносим радиус в настраиваемое поле
+    [SerializeField] private float smoothTime = 0.1f; // Время сглаживания движения
+    [SerializeField] private Joystick joystick; // Джойстик для управления
 
     [Header("Оружие")]
-    public Transform HandWithWeapon;
-    public Transform shotPoint;
-    public GameObject projectile;
+    [SerializeField] private Transform handWithWeapon; // Рука с оружием
+    [SerializeField] private Transform shotPoint; // Точка выстрела
+    [SerializeField] private GameObject projectile; // Префаб пули
+    [SerializeField] private float shotCooldown = 0.5f; // Перезарядка стрельбы
 
-    [Header("Стрельба")]
-    public float shotCooldown;
-    private float nextShotTime;
-
-    [Header("Джойстик")]
-    public Joystick joystick;
-
+    private Rigidbody2D rb;
     private Vector2 movement;
     private Vector2 currentVelocity; // Для сглаживания движения
-
-    private IInventoryManager _inventoryManager;
+    private float nextShotTime;
 
     [Inject]
-    public void Construct(IInventoryManager inventoryManager)
+    private void Construct(IInventoryManager inventoryManager, ILootCollector lootCollector)
     {
-        _inventoryManager = inventoryManager;
+        lootCollector.Initialize(inventoryManager);
     }
+
 
     protected override void Start()
     {
         base.Start();
+        rb = GetComponent<Rigidbody2D>();
         OnDeath += HandleDeath;
     }
+
     private void OnDestroy()
     {
-        // Отписываемся от события смерти при уничтожении объекта
         OnDeath -= HandleDeath;
     }
+
     private void HandleDeath()
     {
-        Destroy(gameObject);
+        Destroy(gameObject); // Удаляем объект при смерти
     }
 
-    void OnTriggerEnter2D(Collider2D collision)
-    {
-        Loot loot = collision.GetComponent<Loot>();
-        if (loot != null)
-        {
-            _inventoryManager.AddItem(loot.Item);
-            Destroy(loot.gameObject);
-        }
-    }
-
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         HandleMovement();
     }
@@ -71,13 +53,14 @@ public class PlayerController : EntityBase
         movement.x = joystick.Horizontal;
         movement.y = joystick.Vertical;
 
-        // Если персонаж движется, поворачиваем его в сторону движения
+        // Поворачиваем оружие в направлении движения
         if (movement != Vector2.zero)
         {
             float weaponAngle = Mathf.Atan2(movement.y, movement.x) * Mathf.Rad2Deg;
-            HandWithWeapon.rotation = Quaternion.Euler(0f, 0f, weaponAngle);
+            handWithWeapon.rotation = Quaternion.Euler(0f, 0f, weaponAngle);
         }
-        // Плавное движение персонажа через Rigidbody
+
+        // Плавное движение через Rigidbody
         Vector2 targetVelocity = movement * moveSpeed;
         rb.velocity = Vector2.SmoothDamp(rb.velocity, targetVelocity, ref currentVelocity, smoothTime);
     }
@@ -89,14 +72,7 @@ public class PlayerController : EntityBase
             nextShotTime = Time.time + shotCooldown;
 
             // Создаем пулю в направлении оружия
-            Instantiate(projectile, shotPoint.position, HandWithWeapon.rotation);
+            Instantiate(projectile, shotPoint.position, handWithWeapon.rotation);
         }
-    }
-
-    private void OnDrawGizmos()
-    {
-        // Рисуем сферу взаимодействия желтым цветом
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, lootRadius);
     }
 }

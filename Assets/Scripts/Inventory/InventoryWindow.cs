@@ -1,82 +1,86 @@
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 using Zenject;
 
-public class InventoryWindow : MonoBehaviour
+public class InventoryWindow : MonoBehaviour, IInventoryUI
 {
-    [Header("UI Elements")]
-    [SerializeField] private GameObject inventoryPanel;
+    [SerializeField] private Transform inventoryPanel;
     [SerializeField] private GameObject slotPrefab;
+    [SerializeField] private SlotInformationPanel slotDetailsPanel;
 
-    private List<GameObject> uiSlots = new List<GameObject>();
+    private readonly List<GameObject> uiSlots = new();
+    private IInventoryManager inventoryManager;
 
-    private IInventoryManager _inventoryManager; // Reference to the manager through interface
-    private SlotInformationPanel slotInformationPanel;
-
+    // Внедрение IInventoryManager через конструктор
     [Inject]
-    public void Construct(IInventoryManager inventoryManager, SlotInformationPanel slotInformationPanel)
+    public void Construct(IInventoryManager inventoryManager)
     {
-        _inventoryManager = inventoryManager;
-        this.slotInformationPanel= slotInformationPanel;
-
-        _inventoryManager.OnInventoryChanged += UpdateUI;
-    }
-    public void ToggleActive()
-    {
-        inventoryPanel.SetActive(!inventoryPanel.activeSelf);
-    }
-
-    public void UpdateUI()
-    {
-        // Очищаем старые UI-слоты
-        foreach (Transform child in inventoryPanel.transform)
-        {
-            Destroy(child.gameObject);
-        }
-
-        // Создаем UI-слоты на основе данных из InventoryManager
-        foreach (var slot in _inventoryManager.Slots)
-        {
-            GameObject newSlot = Instantiate(slotPrefab, inventoryPanel.transform);
-
-            TextMeshProUGUI text = newSlot.GetComponentInChildren<TextMeshProUGUI>();
-            if (text != null)
-            {
-                text.text = slot.Quantity == 1 ? $"{slot.Item.DisplayName}" : $"{slot.Item.DisplayName} x{slot.Quantity}";
-            }
-
-
-            Transform iconTransform = newSlot.transform.Find("Icon");
-
-            if (iconTransform != null)
-            {
-                Image icon = iconTransform.GetComponent<Image>();
-                if (icon != null)
-                {
-                    icon.sprite = slot.Item.Icon;
-                }
-            }
-
-            Button button = newSlot.GetComponent<Button>();
-            if (button != null)
-            {
-                button.onClick.AddListener(() => OnSlotClicked(slot));
-            }
-
-        }
-    }
-
-    private void OnSlotClicked(InventorySlot slot)
-    {
-        slotInformationPanel.SetSlot(slot);
-        slotInformationPanel.gameObject.SetActive(true);
-        //_inventoryManager.UseSlot(slot);
+        this.inventoryManager = inventoryManager;
+        this.inventoryManager.OnInventoryChanged += UpdateUI; // Подписываемся на изменения инвентаря
     }
 
     private void OnDestroy()
     {
-        _inventoryManager.OnInventoryChanged -= UpdateUI;
+        if (inventoryManager != null)
+        {
+            this.inventoryManager.OnInventoryChanged -= UpdateUI; // Отписываемся от события при уничтожении
+        }
+    }
+
+    // Метод для обновления UI при изменении инвентаря
+    public void UpdateUI(List<InventorySlot> slots)
+    {
+        // Очистка старого UI через объектный пул
+        foreach (var slot in uiSlots)
+        {
+            slot.SetActive(false);
+        }
+
+        for (int i = 0; i < slots.Count; i++)
+        {
+            GameObject uiSlot;
+            if (i >= uiSlots.Count)
+            {
+                uiSlot = Instantiate(slotPrefab, inventoryPanel);
+                uiSlots.Add(uiSlot);
+            }
+            else
+            {
+                uiSlot = uiSlots[i];
+                uiSlot.SetActive(true);
+            }
+
+            var slot = slots[i];
+            var text = uiSlot.GetComponentInChildren<TextMeshProUGUI>();
+            var icon = uiSlot.transform.Find("Icon")?.GetComponent<Image>();
+
+            if (text != null) text.text = slot.Quantity > 1 ? $"{slot.Item.DisplayName} x{slot.Quantity}" : slot.Item.DisplayName;
+            if (icon != null) icon.sprite = slot.Item.Icon;
+
+            var button = uiSlot.GetComponent<Button>();
+            if (button != null)
+            {
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() => ShowSlotDetails(slot));
+            }
+        }
+    }
+
+    public void ToggleActive()
+    {
+        inventoryPanel.gameObject.SetActive(!inventoryPanel.gameObject.activeSelf);
+    }
+
+    public void ShowSlotDetails(InventorySlot slot)
+    {
+        slotDetailsPanel.SetSlot(slot);
+        slotDetailsPanel.gameObject.SetActive(true);
+    }
+
+    public void HideSlotDetails()
+    {
+        slotDetailsPanel.gameObject.SetActive(false);
     }
 }

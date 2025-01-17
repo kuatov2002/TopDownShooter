@@ -3,9 +3,17 @@ using System.Collections.Generic;
 
 public interface IInventoryManager
 {
-    public event Action OnInventoryChanged;
-    void AddItem(Item newItem, int quantity = 1);
-    void UseSlot(InventorySlot slot);
-    void RemoveSlot(InventorySlot slot);
+    event Action<List<InventorySlot>> OnInventoryChanged;
+
     List<InventorySlot> Slots { get; }
+
+    void AddItem(Item newItem, int quantity = 1);
+
+    void UseSlot(InventorySlot slot);
+
+    void RemoveSlot(InventorySlot slot);
+
+    bool CanAddItem(Item newItem);
+
+    int GetItemCount(Item item);
 }

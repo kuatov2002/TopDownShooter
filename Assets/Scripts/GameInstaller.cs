@@ -4,15 +4,8 @@ public class GameInstaller : MonoInstaller
 {
     public override void InstallBindings()
     {
-        Container.Bind<IInventoryManager>().To<InventoryManager>().FromComponentInHierarchy().AsSingle();
-
-        Container.Bind<PlayerController>().FromComponentInHierarchy().AsSingle();
-
-        Container.Bind<Loot>().FromComponentInHierarchy().AsTransient();
-
-        Container.Bind<InventoryWindow>().FromComponentInHierarchy().AsSingle();
-
-        Container.Bind<SlotInformationPanel>().FromComponentInHierarchy().AsSingle();
-
+        Container.Bind<IInventoryManager>().To<InventoryManager>().AsSingle();
+        Container.Bind<ILootCollector>().To<LootCollector>().FromComponentInHierarchy().AsSingle();
+        Container.Bind<IInventoryUI>().To<InventoryWindow>().FromComponentInHierarchy().AsSingle();
     }
 }

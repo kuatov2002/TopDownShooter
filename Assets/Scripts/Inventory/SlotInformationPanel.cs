@@ -11,45 +11,41 @@ public class SlotInformationPanel : MonoBehaviour
     [SerializeField] private Button useButton;
     [SerializeField] private Button deleteButton;
 
-
     private InventorySlot currentSlot;
 
+    private IInventoryManager inventoryManager;
 
-    private IInventoryManager _inventoryManager;
-
+    // Внедрение IInventoryManager через конструктор
     [Inject]
     public void Construct(IInventoryManager inventoryManager)
     {
-        _inventoryManager = inventoryManager;
+        this.inventoryManager = inventoryManager;
     }
+
     public void SetSlot(InventorySlot slot)
     {
-        useButton.onClick.RemoveAllListeners();
-        deleteButton.onClick.RemoveAllListeners();
-
-
         icon.sprite = slot.Item.Icon;
-        description.text= slot.Item.Description;
+        description.text = slot.Item.Description;
         name.text = slot.Item.DisplayName;
 
-        currentSlot=slot;
+        currentSlot = slot;
 
-        useButton.onClick.AddListener(SlotClicked);
-        deleteButton.onClick.AddListener(DeleteSlot);
+        useButton.onClick.RemoveAllListeners();
+        useButton.onClick.AddListener(() => UseSlot());
+
+        deleteButton.onClick.RemoveAllListeners();
+        deleteButton.onClick.AddListener(() => DeleteSlot());
     }
 
-
-    private void SlotClicked()
+    private void UseSlot()
     {
-        _inventoryManager.UseSlot(currentSlot);
+        inventoryManager.UseSlot(currentSlot);
         gameObject.SetActive(false);
     }
+
     private void DeleteSlot()
     {
-        if (currentSlot != null)
-        {
-            _inventoryManager.RemoveSlot(currentSlot);
-            gameObject.SetActive(false); // Закрываем панель
-        }
+        inventoryManager.RemoveSlot(currentSlot);
+        gameObject.SetActive(false);
     }
 }
