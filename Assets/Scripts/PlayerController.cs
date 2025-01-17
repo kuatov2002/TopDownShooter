@@ -1,5 +1,6 @@
 using UnityEngine;
 using Zenject;
+using static UnityEditor.Progress;
 
 public class PlayerController : EntityBase
 {
@@ -9,7 +10,7 @@ public class PlayerController : EntityBase
 
     [Header("Взаимодействие")]
     public LayerMask lootLayer; // Установите это в инспекторе на слой "Loot"
-    public float interactionRadius; // Выносим радиус в настраиваемое поле
+    public float lootRadius; // Выносим радиус в настраиваемое поле
 
     [Header("Оружие")]
     public Transform HandWithWeapon;
@@ -49,28 +50,19 @@ public class PlayerController : EntityBase
         Destroy(gameObject);
     }
 
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        Loot loot = collision.GetComponent<Loot>();
+        if (loot != null)
+        {
+            _inventoryManager.AddItem(loot.Item);
+            Destroy(loot.gameObject);
+        }
+    }
+
     void FixedUpdate()
     {
         HandleMovement();
-    }
-
-    public void Interact()
-    {
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(
-            transform.position,
-            interactionRadius,
-            lootLayer
-        );
-
-        foreach (var hitCollider in hitColliders)
-        {
-            IInteractable interactable = hitCollider.GetComponent<IInteractable>();
-            if (interactable != null)
-            {
-                interactable.Interact();
-                break;
-            }
-        }
     }
 
     private void HandleMovement()
@@ -105,6 +97,6 @@ public class PlayerController : EntityBase
     {
         // Рисуем сферу взаимодействия желтым цветом
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, interactionRadius);
+        Gizmos.DrawWireSphere(transform.position, lootRadius);
     }
 }

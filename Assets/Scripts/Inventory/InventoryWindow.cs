@@ -44,7 +44,19 @@ public class InventoryWindow : MonoBehaviour
             TextMeshProUGUI text = newSlot.GetComponentInChildren<TextMeshProUGUI>();
             if (text != null)
             {
-                text.text = $"{slot.Item.DisplayName} x{slot.Quantity}";
+                text.text = slot.Quantity == 1 ? $"{slot.Item.DisplayName}" : $"{slot.Item.DisplayName} x{slot.Quantity}";
+            }
+
+
+            Transform iconTransform = newSlot.transform.Find("Icon");
+
+            if (iconTransform != null)
+            {
+                Image icon = iconTransform.GetComponent<Image>();
+                if (icon != null)
+                {
+                    icon.sprite = slot.Item.Icon;
+                }
             }
 
             Button button = newSlot.GetComponent<Button>();
@@ -52,6 +64,7 @@ public class InventoryWindow : MonoBehaviour
             {
                 button.onClick.AddListener(() => OnSlotClicked(slot));
             }
+
         }
     }
 
