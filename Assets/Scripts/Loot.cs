@@ -11,8 +11,6 @@ public class Loot : MonoBehaviour, IInteractable
     public void Construct(IInventoryManager inventoryManager)
     {
         _inventoryManager = inventoryManager;
-
-        print(item.DisplayName);
     }
 
     public void Interact()

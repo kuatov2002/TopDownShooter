@@ -13,19 +13,19 @@ public class InventoryWindow : MonoBehaviour
     private List<GameObject> uiSlots = new List<GameObject>();
 
     private IInventoryManager _inventoryManager; // Reference to the manager through interface
+    private SlotInformationPanel slotInformationPanel;
 
     [Inject]
-    public void Construct(IInventoryManager inventoryManager)
+    public void Construct(IInventoryManager inventoryManager, SlotInformationPanel slotInformationPanel)
     {
         _inventoryManager = inventoryManager;
+        this.slotInformationPanel= slotInformationPanel;
+
+        _inventoryManager.OnInventoryChanged += UpdateUI;
     }
     public void ToggleActive()
     {
         inventoryPanel.SetActive(!inventoryPanel.activeSelf);
-        if (inventoryPanel.activeSelf)
-        {
-            UpdateUI();
-        }
     }
 
     public void UpdateUI()
@@ -57,6 +57,13 @@ public class InventoryWindow : MonoBehaviour
 
     private void OnSlotClicked(InventorySlot slot)
     {
-        _inventoryManager.UseSlot(slot);
+        slotInformationPanel.SetSlot(slot);
+        slotInformationPanel.gameObject.SetActive(true);
+        //_inventoryManager.UseSlot(slot);
+    }
+
+    private void OnDestroy()
+    {
+        _inventoryManager.OnInventoryChanged -= UpdateUI;
     }
 }

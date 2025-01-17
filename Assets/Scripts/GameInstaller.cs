@@ -11,8 +11,8 @@ public class GameInstaller : MonoInstaller
         Container.Bind<Loot>().FromComponentInHierarchy().AsTransient();
 
         Container.Bind<InventoryWindow>().FromComponentInHierarchy().AsSingle();
-        
 
+        Container.Bind<SlotInformationPanel>().FromComponentInHierarchy().AsSingle();
 
     }
 }

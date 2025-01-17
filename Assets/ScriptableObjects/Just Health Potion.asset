@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: 1
   displayName: Just Health Potion
-  icon: {fileID: 21300000, guid: 89d98eda0f6f17a4bac885d09616f558, type: 3}
+  icon: {fileID: 21300000, guid: dfba8ade727d8d24cb35c864cd00fdfa, type: 3}
   maxStackSize: 64
   isStackable: 1
   duration: 10

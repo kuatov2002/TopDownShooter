@@ -6,8 +6,9 @@ using Zenject;
 public class InventoryManager : MonoBehaviour, IInventoryManager
 {
 
-    [SerializeField] private List<InventorySlot> slots = new List<InventorySlot>();
+    public event Action OnInventoryChanged;
 
+    [SerializeField] private List<InventorySlot> slots = new List<InventorySlot>();
     public List<InventorySlot> Slots => slots;
 
     private InventoryWindow _inventoryWindow;
@@ -32,7 +33,11 @@ public class InventoryManager : MonoBehaviour, IInventoryManager
             slots.Add(newSlot);
         }
 
-        _inventoryWindow.UpdateUI();
+        NotifyInventoryChanged();
+    }
+    private void NotifyInventoryChanged()
+    {
+        OnInventoryChanged?.Invoke();
     }
 
     public void UseSlot(InventorySlot slot)
@@ -47,6 +52,14 @@ public class InventoryManager : MonoBehaviour, IInventoryManager
             slots.Remove(slot);
         }
 
-        _inventoryWindow.UpdateUI();
+        NotifyInventoryChanged();
+    }
+    public void RemoveSlot(InventorySlot slot)
+    {
+        if (slots.Contains(slot))
+        {
+            slots.Remove(slot); // Удаляем слот из списка
+            NotifyInventoryChanged(); // Обновляем UI
+        }
     }
 }

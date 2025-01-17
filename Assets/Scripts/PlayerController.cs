@@ -56,21 +56,17 @@ public class PlayerController : EntityBase
 
     public void Interact()
     {
-        Debug.Log("Попытка взаимодействия");
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(
             transform.position,
             interactionRadius,
-            lootLayer // Теперь проверяются только объекты на слое Loot
+            lootLayer
         );
-        Debug.Log($"Найдено коллайдеров: {hitColliders.Length}");
 
         foreach (var hitCollider in hitColliders)
         {
-            Debug.Log($"Проверяем объект: {hitCollider.gameObject.name}");
             IInteractable interactable = hitCollider.GetComponent<IInteractable>();
             if (interactable != null)
             {
-                Debug.Log("Найден интерактивный объект");
                 interactable.Interact();
                 break;
             }
