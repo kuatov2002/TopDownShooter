@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public abstract class EntityBase : MonoBehaviour, IHealth
 {
@@ -9,9 +10,9 @@ public abstract class EntityBase : MonoBehaviour, IHealth
     public float MaxHealth => maxHealth;
     public bool IsDead => currentHealth <= 0;
 
-    public event System.Action<float> OnHealthChanged;
+    public event System.Action OnHealthChanged;
     public event System.Action OnDeath;
-
+    [SerializeField] protected Slider hpBar;
     protected virtual void Start()
     {
         currentHealth = maxHealth;
@@ -20,7 +21,7 @@ public abstract class EntityBase : MonoBehaviour, IHealth
     public virtual void TakeDamage(float damage)
     {
         currentHealth = Mathf.Max(0, currentHealth - damage);
-        OnHealthChanged?.Invoke(currentHealth);
+        OnHealthChanged?.Invoke();
 
         if (IsDead)
         {
@@ -31,6 +32,6 @@ public abstract class EntityBase : MonoBehaviour, IHealth
     public virtual void Heal(float amount)
     {
         currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
-        OnHealthChanged?.Invoke(currentHealth);
+        OnHealthChanged?.Invoke();
     }
 }

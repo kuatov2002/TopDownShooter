@@ -4,16 +4,15 @@ using UnityEngine;
 
 public class Zombie : EntityBase
 {
-    [SerializeField] private float detectionRange = 3f;
-    [SerializeField] private float attackRange = 0.5f;
-    [SerializeField] private float moveSpeed = 1f;
-    [SerializeField] private float attackDamage = 1f;
-    [SerializeField] private float attackCooldown = 1f;
-
+    [SerializeField] private float detectionRange;
+    [SerializeField] private float attackRange;
+    [SerializeField] private float moveSpeed;
+    [SerializeField] private float attackDamage;
+    [SerializeField] private float attackCooldown ;
+    
     private float lastAttackTime;
 
     Transform player;
-    public int health;
 
     // Start is called before the first frame update
     protected override void Start()
@@ -21,11 +20,12 @@ public class Zombie : EntityBase
         base.Start();
         player = FindObjectOfType<PlayerController>().transform;
 
+        OnHealthChanged += HPChanged;
         OnDeath += HandleDeath;
     }
     private void OnDestroy()
     {
-        // Отписываемся от события смерти при уничтожении объекта
+        OnHealthChanged -= HPChanged;
         OnDeath -= HandleDeath;
     }
     // Update is called once per frame
@@ -57,12 +57,18 @@ public class Zombie : EntityBase
         lastAttackTime = Time.time;
         player.GetComponent<IHealth>()?.TakeDamage(attackDamage);
     }
-    void OnTriggerEnter2D(Collider2D other)
+    void OnTriggerEnter2D(Collider2D collider)
     {
-        if (other.tag == "Projectile")
+        if (collider.tag == "Projectile")
         {
-            TakeDamage(other.GetComponent<Projectile>().damage);
+            Destroy(collider.gameObject);
+            TakeDamage(collider.GetComponent<Projectile>().damage);
         }
+    }
+
+    private void HPChanged()
+    {
+        hpBar.value = currentHealth;
     }
     private void HandleDeath()
     {
