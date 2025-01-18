@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Zenject;
 
 public class PlayerController : EntityBase
@@ -8,10 +9,12 @@ public class PlayerController : EntityBase
     [SerializeField] private Joystick joystick; // Джойстик для управления
 
     [Header("Оружие")]
+    [SerializeField] private float autoAimRange = 4f;
     [SerializeField] private Transform handWithWeapon; // Рука с оружием
     [SerializeField] private Transform shotPoint; // Точка выстрела
     [SerializeField] private GameObject projectile; // Префаб пули
     [SerializeField] private float shotCooldown = 0.5f; // Перезарядка стрельбы
+    private Transform nearestEnemy;
 
     private Rigidbody2D rb;
     private Vector2 movement;
@@ -29,22 +32,29 @@ public class PlayerController : EntityBase
     {
         base.Start();
         rb = GetComponent<Rigidbody2D>();
+        OnHealthChanged += HPChanged;
         OnDeath += HandleDeath;
     }
 
     private void OnDestroy()
     {
+        OnHealthChanged -= HPChanged;
         OnDeath -= HandleDeath;
     }
 
     private void HandleDeath()
     {
-        Destroy(gameObject); // Удаляем объект при смерти
+        Destroy(gameObject);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
-
+    private void HPChanged()
+    {
+        hpBar.value = currentHealth;
+    }
     private void FixedUpdate()
     {
         HandleMovement();
+        HandleAutoAim();
     }
 
     private void HandleMovement()
@@ -64,7 +74,36 @@ public class PlayerController : EntityBase
         Vector2 targetVelocity = movement * moveSpeed;
         rb.velocity = Vector2.SmoothDamp(rb.velocity, targetVelocity, ref currentVelocity, smoothTime);
     }
+    private void HandleAutoAim()
+    {
+        // Ищем всех врагов в радиусе
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, autoAimRange);
+        Transform closestEnemy = null;
+        float closestDistance = Mathf.Infinity;
 
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag("Enemy")) // Проверяем, что объект - враг
+            {
+                float distance = Vector2.Distance(transform.position, hit.transform.position);
+                if (distance < closestDistance)
+                {
+                    closestEnemy = hit.transform;
+                    closestDistance = distance;
+                }
+            }
+        }
+
+        nearestEnemy = closestEnemy;
+
+        // Если враг найден, направляем оружие на него
+        if (nearestEnemy != null)
+        {
+            Vector2 directionToEnemy = (nearestEnemy.position - handWithWeapon.position).normalized;
+            float angle = Mathf.Atan2(directionToEnemy.y, directionToEnemy.x) * Mathf.Rad2Deg;
+            handWithWeapon.rotation = Quaternion.Euler(0f, 0f, angle);
+        }
+    }
     public void Shoot()
     {
         if (Time.time > nextShotTime)
@@ -75,4 +114,6 @@ public class PlayerController : EntityBase
             Instantiate(projectile, shotPoint.position, handWithWeapon.rotation);
         }
     }
+
+
 }

@@ -28,7 +28,7 @@ public class Spawner : MonoBehaviour
 
             Transform randomSpawnPoint = spawnPoints[Random.Range(0,spawnPoints.Length)];
 
-            Instantiate(enemy, randomSpawnPoint.position, Quaternion.identity);
+            Instantiate(enemy, randomSpawnPoint.position+new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f),0), Quaternion.identity);
         }
     }
 }

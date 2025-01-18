@@ -31,7 +31,7 @@ public class Zombie : EntityBase
     // Update is called once per frame
     void Update()
     {
-        if (IsDead) return;
+        if (IsDead||player==null) return;
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         if (distanceToPlayer <= detectionRange)
         {
