@@ -14,8 +14,12 @@ public abstract class EntityBase : MonoBehaviour, IHealth
 {
     [SerializeField] protected float maxHealth;
     protected float currentHealth;
-    
-    public float CurrentHealth => currentHealth;
+
+    public float CurrentHealth
+    {
+        get => currentHealth;
+        set => currentHealth = value;
+    }
     public float MaxHealth => maxHealth;
     public bool IsDead => currentHealth <= 0;
 

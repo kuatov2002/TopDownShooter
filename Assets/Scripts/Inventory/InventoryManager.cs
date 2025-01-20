@@ -73,6 +73,18 @@ public class InventoryManager : IInventoryManager
         return count;
     }
 
+    public Item GetItemById(int itemId)
+    {
+        foreach (InventorySlot slot in slots)
+        {
+            if (slot.Item.ItemId==itemId)
+            {
+                return slot.Item;
+            }
+        }
+        return null;
+    }
+
     private void NotifyInventoryChanged()
     {
         OnInventoryChanged?.Invoke(new List<InventorySlot>(slots)); // Передаём копию списка для безопасности

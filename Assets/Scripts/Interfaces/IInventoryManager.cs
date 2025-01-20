@@ -16,4 +16,6 @@ public interface IInventoryManager
     bool CanAddItem(Item newItem);
 
     int GetItemCount(Item item);
+
+    Item GetItemById(int itemId);
 }
